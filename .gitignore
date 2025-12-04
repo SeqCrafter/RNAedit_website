@@ -6,8 +6,12 @@ __pycache__/
 *.py[cod]
 .states/*
 .venv/*
+.venv
+.vscode
 .web/*
 .env
 .vscode/*
-
+alembic
+alembic.ini
 CLAUDE.md
+alembic.ini

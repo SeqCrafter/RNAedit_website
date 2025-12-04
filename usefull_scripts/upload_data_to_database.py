@@ -1,4 +1,5 @@
 import reflex as rx
+import sqlmodel
 from MAIRE.models import (
     RNAediting,
     Repeat,
@@ -162,7 +163,6 @@ class DataLoader:
                     session.add(repeat)
                 session.commit()
 
-
     def _upload_tissue(self):
         with rx.session(url=self.url) as session:
             organ = Organ(name="brain")
@@ -173,14 +173,15 @@ class DataLoader:
                     session.add(tissue)
                 session.commit()
 
-
     def _upload_AA_change(self):
         with rx.session(url=self.url) as session:
             with open(self.aachangefile, "r") as f:
                 for line in f:
                     trans, changes = line.strip("\n").split(":")
                     transcript = session.exec(
-                        Transcript.select().where(Transcript.transcript_id == trans)
+                        sqlmodel.select(Transcript).where(
+                            Transcript.transcript_id == trans
+                        )
                     ).first()
                     if transcript:
                         aa_change = Aminochange(change=changes, transcript=transcript)
@@ -218,14 +219,14 @@ class DataLoader:
                         repeat_db = None
                     else:
                         repeat_db = session.exec(
-                            Repeat.select().where(Repeat.repeatclass == repeat)
+                            sqlmodel.select(Repeat).where(Repeat.repeatclass == repeat)
                         ).first()
                     if gene == "-":
                         gene_db = None
                     else:
                         gene_id = gene.split(":")[0]
                         gene_db = session.exec(
-                            Gene.select().where(Gene.ensembly_id == gene_id)
+                            sqlmodel.select(Gene).where(Gene.ensembly_id == gene_id)
                         ).first()
                     if aminoAcidChanges == "-":
                         aminoAcidChange_dbs = []
@@ -235,14 +236,14 @@ class DataLoader:
                             if ":" in aminoAcidChange:
                                 trans, acidchange = aminoAcidChange.split(":")
                                 aminoAcidChange_db = session.exec(
-                                    Aminochange.select().where(
+                                    sqlmodel.select(Aminochange).where(
                                         Aminochange.change == acidchange
                                     )
                                 ).first()
 
                                 if aminoAcidChange_db is not None:
                                     trans_db = session.exec(
-                                        Transcript.select().where(
+                                        sqlmodel.select(Transcript).where(
                                             Transcript.transcript_id == trans
                                         )
                                     ).first()
@@ -271,7 +272,7 @@ class DataLoader:
                         for tissue in tissues.split(";"):
                             if tissue != "":
                                 tissue_db = session.exec(
-                                    Tissue.select().where(Tissue.name == tissue)
+                                    sqlmodel.select(Tissue).where(Tissue.name == tissue)
                                 ).first()
                                 if tissue_db is not None:
                                     haha = RNAeditingtissuelink(
@@ -297,13 +298,13 @@ class DataLoader:
                     level = float(level)
                     ## get rnaediting and tissues
                     rnaediting_db = session.exec(
-                        RNAediting.select().where(
+                        sqlmodel.select(RNAediting).where(
                             RNAediting.chromosome == chrom,
                             RNAediting.position == pos,
                         )
                     ).first()
                     tissues_dbs = session.exec(
-                        Tissue.select().where(Tissue.name == tissue_name)
+                        sqlmodel.select(Tissue).where(Tissue.name == tissue_name)
                     ).first()
                     if rnaediting_db is not None and tissues_dbs is not None:
                         final_db = EditingLevel(
@@ -320,19 +321,20 @@ class DataLoader:
 
     def load_data(self):
         print("loading data begin...")
-        #print("load gene annotations")
-        #self._upload_gene()
-        #print("load repeat annotations")
-        #self._upload_repeat()
-        #print("load tissues")
-        #self._upload_tissue()
-        #print("load aminoacid changes")
-        #self._upload_AA_change()
-        #print("load RNA editing")
-        #self._upload_edit()
+        print("load gene annotations")
+        self._upload_gene()
+        print("load repeat annotations")
+        self._upload_repeat()
+        print("load tissues")
+        self._upload_tissue()
+        print("load aminoacid changes")
+        self._upload_AA_change()
+        print("load RNA editing")
+        self._upload_edit()
         print("load editing levels")
         self._upload_levels()
         print("All data loaded!")
+
     def clear_all_tables(self):
         all_tables = [
             "alembic_version",
@@ -347,26 +349,27 @@ class DataLoader:
             "species",
             "tissue",
             "transcript",
-            "utr"]
+            "utr",
+        ]
 
         with rx.session(url=self.url) as session:
-            session.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS = 0;"))
+            # PostgreSQL 使用 TRUNCATE ... CASCADE 来处理外键约束
             for table in all_tables:
-                session.execute(sqlalchemy.text("TRUNCATE TABLE :table"),{"table": table})
-            session.execute(sqlalchemy.text("SET FOREIGN_KEY_CHECKS = 1;"))
+                session.execute(sqlalchemy.text(f"TRUNCATE TABLE {table} CASCADE"))
             session.commit()
-            
+
 
 if __name__ == "__main__":
-    data_path = "/home/panxiaoguang/Projects/maire_data"
+    data_path = "/Users/panxiaoguang/Desktop/RNAediting/maire_data"
     data_files = [
-        "Gene_data_Macaque.txt",
+        "sample_Gene_data_Macaque.txt",
         "repeats.tsv",
         "tissues.tsv",
         "AA_changes.tsv",
-        "RNA_editing_data.txt",
-        "RE_levels.tsv",
+        "sample_RNA_editing_data.txt",
+        "sample_RE_levels.tsv",
     ]
     data_files = [os.path.join(data_path, file) for file in data_files]
     dataloader = DataLoader(config.db_url, *data_files)
     dataloader.load_data()
+    # dataloader.clear_all_tables()

@@ -5,6 +5,7 @@ from ..models import Gene, Transcript, RNAediting, EditingLevel
 from ..utils import create_visualization_2
 import plotly.graph_objects as go
 import sqlalchemy
+import sqlmodel
 
 
 def generate_geneview_schema(records: Gene):
@@ -66,7 +67,7 @@ class ViewByGeneState(rx.State):
                     return
 
                 mydata = await asession.execute(
-                    Gene.select()
+                    sqlmodel.select(Gene)
                     .where(Gene.symbol == self.gene_symbol)
                     .options(
                         sqlalchemy.orm.selectinload(Gene.transcripts).options(

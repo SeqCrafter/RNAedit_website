@@ -4,6 +4,7 @@ from ..models import RNAediting, Aminochange, Gene, EditingLevel
 from typing import List, Dict
 from ..styles import info, tooltip
 import sqlalchemy
+import sqlmodel
 
 
 ##################################################################################################
@@ -272,7 +273,7 @@ class SearchByPositionState(rx.State):
                     start = int(start)
                     end = int(end)
                     results = await asession.execute(
-                        RNAediting.select()
+                        sqlmodel.select(RNAediting)
                         .where(
                             RNAediting.chromosome == chrom,
                             RNAediting.position >= start,
@@ -303,7 +304,7 @@ class SearchByPositionState(rx.State):
                 else:
                     ## use gene symbol to get records
                     results = await asession.execute(
-                        Gene.select()
+                        sqlmodel.select(Gene)
                         .where(Gene.symbol == self.gene_symbol)
                         .options(
                             sqlalchemy.orm.selectinload(Gene.rnaediting).options(
@@ -344,7 +345,7 @@ class SearchByPositionState(rx.State):
         async with rx.asession() as asession:
             async with self:
                 results = await asession.execute(
-                    RNAediting.select()
+                    sqlmodel.select(RNAediting)
                     .where(RNAediting.id == self.current_rnaedit_id)
                     .options(
                         sqlalchemy.orm.selectinload(RNAediting.aminochanges).options(
@@ -370,7 +371,7 @@ class SearchByPositionState(rx.State):
         async with rx.asession() as asession:
             async with self:
                 results = await asession.execute(
-                    RNAediting.select()
+                    sqlmodel.select(RNAediting)
                     .where(RNAediting.id == self.current_plotting_id)
                     .options(
                         sqlalchemy.orm.selectinload(RNAediting.editinglevel).options(

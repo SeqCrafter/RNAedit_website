@@ -1,14 +1,15 @@
-import reflex as rx
 import sqlmodel
 from typing import List, Optional
 
 
-class Species(rx.Model, table=True):
+class Species(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     name: str
     genes: List["Gene"] = sqlmodel.Relationship(back_populates="species")
 
 
-class Gene(rx.Model, table=True):
+class Gene(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     chromosome: str
     start: int
     end: int
@@ -23,7 +24,8 @@ class Gene(rx.Model, table=True):
     species_id: int | None = sqlmodel.Field(foreign_key="species.id")
 
 
-class Transcript(rx.Model, table=True):
+class Transcript(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     transcript_id: str
     chromosome: str
     start: int
@@ -38,7 +40,8 @@ class Transcript(rx.Model, table=True):
     gene_id: int | None = sqlmodel.Field(foreign_key="gene.id")
 
 
-class Cds(rx.Model, table=True):
+class Cds(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     chromosome: str
     start: int
     end: int
@@ -46,7 +49,8 @@ class Cds(rx.Model, table=True):
     transcript_id: int | None = sqlmodel.Field(foreign_key="transcript.id")
 
 
-class Utr(rx.Model, table=True):
+class Utr(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     chromosome: str
     start: int
     end: int
@@ -54,7 +58,8 @@ class Utr(rx.Model, table=True):
     transcript_id: int | None = sqlmodel.Field(foreign_key="transcript.id")
 
 
-class Aminochange(rx.Model, table=True):
+class Aminochange(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     change: str
     transcript_id: int | None = sqlmodel.Field(foreign_key="transcript.id")
     transcript: Optional["Transcript"] = sqlmodel.Relationship(
@@ -66,7 +71,8 @@ class Aminochange(rx.Model, table=True):
     )
 
 
-class RNAediting(rx.Model, table=True):
+class RNAediting(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     chromosome: str = sqlmodel.Field(index=True)
     position: int
     ref: str
@@ -91,19 +97,22 @@ class RNAediting(rx.Model, table=True):
     )
 
 
-class Repeat(rx.Model, table=True):
+class Repeat(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     rnaediting: List["RNAediting"] = sqlmodel.Relationship(back_populates="repeat")
     repeatclass: str
 
 
-class RNAeditingtissuelink(rx.Model, table=True):
+class RNAeditingtissuelink(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     rnaediting_id: int | None = sqlmodel.Field(foreign_key="rnaediting.id")
     rnaediting: Optional["RNAediting"] = sqlmodel.Relationship(back_populates="tissues")
     tissue_id: int | None = sqlmodel.Field(foreign_key="tissue.id")
     tissue: Optional["Tissue"] = sqlmodel.Relationship(back_populates="rnaediting")
 
 
-class Tissue(rx.Model, table=True):
+class Tissue(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     name: str
     rnaediting: List["RNAeditingtissuelink"] = sqlmodel.Relationship(
         back_populates="tissue"
@@ -115,12 +124,14 @@ class Tissue(rx.Model, table=True):
     organ: Optional["Organ"] = sqlmodel.Relationship(back_populates="tissues")
 
 
-class Organ(rx.Model, table=True):
+class Organ(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     name: str
     tissues: List["Tissue"] = sqlmodel.Relationship(back_populates="organ")
 
 
-class EditingLevel(rx.Model, table=True):
+class EditingLevel(sqlmodel.SQLModel, table=True):
+    id: int | None = sqlmodel.Field(default=None, primary_key=True)
     rnaediting_id: int | None = sqlmodel.Field(foreign_key="rnaediting.id")
     tissue_id: int | None = sqlmodel.Field(foreign_key="tissue.id")
     rnaediting: Optional["RNAediting"] = sqlmodel.Relationship(
