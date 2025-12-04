@@ -15,3 +15,6 @@ alembic
 alembic.ini
 CLAUDE.md
 alembic.ini
+alembic.ini
+alembic/script.py.mako
+alembic/versions/68915b50577d_.py
