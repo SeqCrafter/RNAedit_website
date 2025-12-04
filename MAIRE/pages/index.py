@@ -210,7 +210,7 @@ def index() -> rx.Component:
                     ),
                     rx.link(
                         "Link",
-                        href="https://alist.xiaohanys.xyz/d/Yidong/Bioinformatics/RNA_editing_data.txt",
+                        href="https://huggingface.co/datasets/XiaoHanYS/MySDModels/resolve/main/RNA_editing_data.txt",
                         is_external=True,
                     ),
                     spacing="2",
@@ -224,7 +224,7 @@ def index() -> rx.Component:
                     ),
                     rx.link(
                         "Link",
-                        href="https://alist.xiaohanys.xyz/d/Yidong/Bioinformatics/RE_levels.tsv",
+                        href="https://huggingface.co/datasets/XiaoHanYS/MySDModels/resolve/main/RE_levels.tsv",
                         is_external=True,
                     ),
                     spacing="2",
